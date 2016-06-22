@@ -1,9 +1,8 @@
-from datetime import datetime
-from os import path
-from pprint import pprint
-from requests import post
-
+import datetime as dt
 import json
+import os
+import pprint
+import requests
 import yaml
 
 
@@ -17,7 +16,7 @@ class Weatherstation(object):
 
     def __debug(self, message):
         if self.debug:
-            now = datetime.utcnow().isoformat()
+            now = dt.datetime.utcnow().isoformat()
             print('[%s] %s' % (now, message))
 
     def __get_token(self):
@@ -50,7 +49,7 @@ class Weatherstation(object):
         store = {}
         tokenstore = self.config['tokenstore']
 
-        if path.isfile(tokenstore):
+        if os.path.isfile(tokenstore):
             self.__debug('Reading stored tokens from \'%s\'.' % (tokenstore))
             stream = open(tokenstore, 'r')
             store = yaml.load(stream)
@@ -59,10 +58,10 @@ class Weatherstation(object):
             self.config['refresh_token'] = store['refresh_token']
             self.config['expires_in'] = store['expires_in']
 
-            lastupdate = datetime.strptime(
+            lastupdate = dt.datetime.strptime(
                 store['tokens_last_updated'],
                 "%Y-%m-%dT%H:%M:%S.%f")
-            diffsecs = (datetime.utcnow() - lastupdate).total_seconds()
+            diffsecs = (dt.datetime.utcnow() - lastupdate).total_seconds()
             self.__debug('Token is %i seconds old.' % (diffsecs))
 
             if diffsecs > store['expires_in']:
