@@ -79,7 +79,7 @@ class Weatherstation(object):
                 haschanged = True
 
         else:
-            self.__debug('Fetching new tokens.')
+            logger.debug('Fetching new tokens.')
             tokens = self._get_token()
             store['tokens_last_updated'] = dt.datetime.utcnow().isoformat()
             store['access_token'] = tokens['access_token']
