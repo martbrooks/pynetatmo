@@ -10,15 +10,8 @@ import yaml
 class Weatherstation(object):
 
     def __init__(self, configyaml, debug=False):
-        stream = open(configyaml, 'r')
-        config = yaml.load(stream)
-        self.configyaml = configyaml
-        self.config = {}
-        self.config['username'] = config['username']
-        self.config['password'] = config['password']
-        self.config['client_id'] = config['client_id']
-        self.config['client_secret'] = config['client_secret']
-        self.config['tokenstore'] = config['tokenstore']
+        with open(configyaml, "r") as stream:
+            self.config = config = yaml.load(stream)
         self.debug = debug
         self.__get_or_refresh_tokens()
 
