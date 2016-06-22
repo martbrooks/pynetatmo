@@ -9,7 +9,7 @@ import yaml
 
 class Weatherstation(object):
 
-    def __init__(self, configyaml, debug):
+    def __init__(self, configyaml, debug=False):
         stream = open(configyaml, 'r')
         config = yaml.load(stream)
         self.configyaml = configyaml
@@ -19,15 +19,15 @@ class Weatherstation(object):
         self.config['client_id'] = config['client_id']
         self.config['client_secret'] = config['client_secret']
         self.config['tokenstore'] = config['tokenstore']
-        setattr(self, 'debug', debug)
-        self.__get_or_refresh_tokens(self)
+        self.debug = debug
+        self.__get_or_refresh_tokens()
 
     def __debug(self, message):
         if self.debug:
             now = datetime.utcnow().isoformat()
             print('[%s] %s' % (now, message))
 
-    def __get_token(self, arg):
+    def __get_token(self):
         payload = {
             'grant_type': 'password',
             'client_id': self.config['client_id'],
@@ -40,7 +40,7 @@ class Weatherstation(object):
             data=payload)
         return r.json()
 
-    def __refresh_token(self, arg):
+    def __refresh_token(self):
         payload = {
             'grant_type': 'refresh_token',
             'client_id': self.config['client_id'],
@@ -52,7 +52,7 @@ class Weatherstation(object):
             data=payload)
         return r.json()
 
-    def __get_or_refresh_tokens(self, arg):
+    def __get_or_refresh_tokens(self):
         haschanged = False
         store = {}
         tokenstore = self.config['tokenstore']
@@ -75,7 +75,7 @@ class Weatherstation(object):
             if diffsecs > store['expires_in']:
                 self.__debug('Refreshing tokens.')
                 refresh_token = store['refresh_token']
-                newstore = self.__refresh_token(self)
+                newstore = self.__refresh_token()
                 self.__debug('Old access token: %s.' % (store['access_token']))
                 self.__debug(
                     'New access token: %s.' %
@@ -87,7 +87,7 @@ class Weatherstation(object):
 
         else:
             self.__debug('Fetching new tokens.')
-            tokens = self.__get_token(self)
+            tokens = self.__get_token()
             store['tokens_last_updated'] = datetime.utcnow().isoformat()
             store['access_token'] = tokens['access_token']
             store['refresh_token'] = tokens['refresh_token']
@@ -103,6 +103,8 @@ class Weatherstation(object):
             with open(tokenstore, 'w') as yaml_file:
                 yaml_file.write(yaml.dump(store, default_flow_style=False))
 
-ws = Weatherstation(configyaml=r'c:\python\netatmo\settings.yaml', debug=True)
+ws = Weatherstation(
+    configyaml=r'c:\python\pynetatmo\settings.yaml',
+    debug=True)
 print(dir(ws))
 #_get_or_refresh_token(ws)
