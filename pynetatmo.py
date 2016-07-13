@@ -18,7 +18,8 @@ class WeatherstationModule(object):
             module_type,
             module_name,
             parent_id='',
-            is_base_station=False,
+            is_parent=False,
+            is_child=False,
             has_co2=False,
             has_humidity=False,
             has_noise=False,
@@ -170,7 +171,7 @@ class Weatherstation(object):
             data_type = station['data_type']
             station_id = station['_id'],
             self.modules[station_id] = WeatherstationModule(
-                is_base_station=True,
+                is_parent=True,
                 module_id=station['_id'],
                 module_type=station['type'],
                 module_name=station['module_name'],
@@ -187,6 +188,7 @@ class Weatherstation(object):
                 submodule_id = submodule['_id'],
                 child_modules.append(submodule_id)
                 self.modules[submodule_id] = WeatherstationModule(
+                    is_child=True,
                     module_id=submodule_id,
                     module_type=submodule['type'],
                     module_name=submodule['module_name'],
