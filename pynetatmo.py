@@ -233,9 +233,18 @@ class Weatherstation(object):
         for module_id in self.modules:
             thismodule = self.modules[module_id]
             if thismodule.has_temperature:
-                print("yay")
-            else:
-                print("boo")
+                unit = thismodule.administrative['unit']
+                temperature = thismodule.dashboard_data['Temperature']
+                if unit == 0:
+                    thismodule.temperature_raw = temperature
+                    thismodule.temperature_pretty = '%s\u2103' % temperature
+                if unit == 1:
+                    temperature = "%.1f" % (temperature * 1.8 + 32)
+                    thismodule.temperature_raw = temperature
+                    thismodule.temperature_pretty = '%s\x2109' % temperature
+
+                print(thismodule.temperature_raw)
+                print(thismodule.temperature_pretty)
 
 ws = Weatherstation(
     configyaml=r'c:\python\pynetatmo\settings.yaml',
