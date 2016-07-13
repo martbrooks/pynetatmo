@@ -30,7 +30,7 @@ class WeatherstationModule(object):
         self.module_id = module_id
         self.module_type = module_type
         self.module_name = module_name
-        self.is_base_station = is_base_station
+        self.is_parent = is_parent
         self.has_co2 = has_co2
         self.has_humidity = has_humidity
         self.has_noise = has_noise
