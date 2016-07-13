@@ -3,10 +3,40 @@
 import datetime as dt
 import logging
 import os
+import pprint
 import requests
 import yaml
 
 logger = logging.getLogger(__name__)
+
+
+class WeatherstationModule(object):
+
+    def __init__(
+            self,
+            module_id,
+            module_type,
+            module_name,
+            parent_id='',
+            is_base_station=False,
+            has_co2=False,
+            has_humidity=False,
+            has_noise=False,
+            has_pressure=False,
+            has_temperature=False,
+            has_rain=False,
+            has_wind=False):
+        self.module_id = module_id
+        self.module_type = module_type
+        self.module_name = module_name
+        self.is_base_station = is_base_station
+        self.has_co2 = has_co2
+        self.has_humidity = has_humidity
+        self.has_noise = has_noise
+        self.has_pressure = has_pressure
+        self.has_temperature = has_temperature
+        self.has_rain = has_rain
+        self.has_wind = has_wind
 
 
 class Weatherstation(object):
@@ -21,7 +51,9 @@ class Weatherstation(object):
             level=numeric_level)
         with open(configyaml, "r") as stream:
             self.config = config = yaml.load(stream)
+        self.response_cache = ''
         self._get_or_refresh_tokens()
+        self.hierarchy = {}
 
     def _get_token(self):
         ''' Fetch a completely new token. '''
@@ -99,8 +131,99 @@ class Weatherstation(object):
             with open(tokenstore, 'w') as yaml_file:
                 yaml_file.write(yaml.dump(store, default_flow_style=False))
 
+    def _get_station_data(self):
+        ''' Fetch the station data bundle from the API. '''
+        payload = {
+            'access_token': self.config['access_token']
+        }
+        if self.response_cache == '':
+            response = requests.post(
+                'https://api.netatmo.net/api/getstationsdata',
+                data=payload)
+            self.response_cache = response.json()
+        else:
+            logger.debug('Using cached response.')
+
+        return self.response_cache
+
+    def _has_data_type(self, types_available, wanted):
+        if wanted in types_available:
+            return True
+        return False
+
+    def list_stations(self):
+        stationlist = {}
+        stationdata = self._get_station_data()
+        for station in stationdata['body']['devices']:
+            station_id = station['_id']
+            module_name = station['module_name']
+            stationlist[station_id] = module_name
+
+        return stationlist
+
+    def list_modules(self, stationid=''):
+        modulelist = {}
+        stationdata = self._get_station_data()
+        self.modules = {}
+        for station in stationdata['body']['devices']:
+            child_modules = []
+            data_type = station['data_type']
+            station_id = station['_id'],
+            self.modules[station_id] = WeatherstationModule(
+                is_base_station=True,
+                module_id=station['_id'],
+                module_type=station['type'],
+                module_name=station['module_name'],
+                has_co2=self._has_data_type(data_type, 'CO2'),
+                has_humidity=self._has_data_type(data_type, 'Humidity'),
+                has_noise=self._has_data_type(data_type, 'Noise'),
+                has_pressure=self._has_data_type(data_type, 'Pressure'),
+                has_rain=self._has_data_type(data_type, 'Rain'),
+                has_temperature=self._has_data_type(data_type, 'Temperature'),
+                has_wind=self._has_data_type(data_type, 'Wind'),
+            )
+            for submodule in station['modules']:
+                data_type = submodule['data_type']
+                submodule_id = submodule['_id'],
+                child_modules.append(submodule_id)
+                self.modules[submodule_id] = WeatherstationModule(
+                    module_id=submodule_id,
+                    module_type=submodule['type'],
+                    module_name=submodule['module_name'],
+                    parent_id=station_id,
+                    has_co2=self._has_data_type(
+                        data_type,
+                        'CO2'),
+                    has_humidity=self._has_data_type(
+                        data_type,
+                        'Humidity'),
+                    has_noise=self._has_data_type(
+                        data_type,
+                        'Noise'),
+                    has_pressure=self._has_data_type(
+                        data_type,
+                        'Pressure'),
+                    has_rain=self._has_data_type(
+                        data_type,
+                        'Rain'),
+                    has_temperature=self._has_data_type(
+                        data_type,
+                        'Temperature'),
+                    has_wind=self._has_data_type(
+                        data_type,
+                        'Wind'),
+                )
+
+            self.hierarchy[station_id] = child_modules
+
 ws = Weatherstation(
     configyaml=r'c:\python\pynetatmo\settings.yaml',
     loglevel='debug')
-print(dir(ws))
+ws.list_modules('')
+for station in ws.hierarchy:
+    print('- %s' % (ws.modules[station].module_name))
+    for submodule in ws.hierarchy[station]:
+        print('-- %s' % (ws.modules[submodule].module_name))
+
+
 #_get_or_refresh_token(ws)
