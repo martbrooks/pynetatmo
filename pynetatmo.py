@@ -18,6 +18,9 @@ class WeatherstationModule(object):
             module_type,
             module_name,
             parent_id='',
+            administrative={},
+            dashboard_data={},
+            station_name='',
             is_parent=False,
             is_child=False,
             has_co2=False,
@@ -31,6 +34,7 @@ class WeatherstationModule(object):
         self.module_type = module_type
         self.module_name = module_name
         self.is_parent = is_parent
+        self.station_name = station_name
         self.has_co2 = has_co2
         self.has_humidity = has_humidity
         self.has_noise = has_noise
@@ -38,6 +42,8 @@ class WeatherstationModule(object):
         self.has_temperature = has_temperature
         self.has_rain = has_rain
         self.has_wind = has_wind
+        self.administrative = administrative
+        self.dashboard_data = dashboard_data
 
 
 class Weatherstation(object):
@@ -172,9 +178,12 @@ class Weatherstation(object):
             station_id = station['_id'],
             self.modules[station_id] = WeatherstationModule(
                 is_parent=True,
+                station_name=station['station_name'],
                 module_id=station['_id'],
-                module_type=station['type'],
                 module_name=station['module_name'],
+                module_type=station['type'],
+                administrative=stationdata['body']['user']['administrative'],
+                dashboard_data=station['dashboard_data'],
                 has_co2=self._has_data_type(data_type, 'CO2'),
                 has_humidity=self._has_data_type(data_type, 'Humidity'),
                 has_noise=self._has_data_type(data_type, 'Noise'),
@@ -193,6 +202,8 @@ class Weatherstation(object):
                     module_type=submodule['type'],
                     module_name=submodule['module_name'],
                     parent_id=station_id,
+                    administrative=stationdata['body']['user']['administrative'],
+                    dashboard_data=submodule['dashboard_data'],
                     has_co2=self._has_data_type(
                         data_type,
                         'CO2'),
@@ -214,18 +225,28 @@ class Weatherstation(object):
                     has_wind=self._has_data_type(
                         data_type,
                         'Wind'),
+
                 )
 
             self.hierarchy[station_id] = child_modules
+
+        for module_id in self.modules:
+            thismodule = self.modules[module_id]
+            if thismodule.has_temperature:
+                print("yay")
+            else:
+                print("boo")
 
 ws = Weatherstation(
     configyaml=r'c:\python\pynetatmo\settings.yaml',
     loglevel='debug')
 ws.list_modules('')
-for station in ws.hierarchy:
-    print('- %s' % (ws.modules[station].module_name))
-    for submodule in ws.hierarchy[station]:
-        print('-- %s' % (ws.modules[submodule].module_name))
+
+# for station in ws.hierarchy:
+#    print('- %s' % (ws.modules[station].station_name))
+#    print('-- %s' % (ws.modules[station].module_name))
+#    for submodule in ws.hierarchy[station]:
+#        print('--- %s' % (ws.modules[submodule].module_name))
 
 
 #_get_or_refresh_token(ws)
