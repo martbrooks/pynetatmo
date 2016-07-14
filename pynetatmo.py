@@ -232,18 +232,13 @@ class Weatherstation(object):
 
         for module_id in self.modules:
             thismodule = self.modules[module_id]
-            if thismodule.has_temperature:
-                unit = thismodule.administrative['unit']
-                temperature = thismodule.dashboard_data['Temperature']
-                if unit == 0:
-                    thismodule.temperature = temperature
-                    thismodule.temperature_pretty = '{:.1f}\u2103'.format(
-                        temperature)
-                if unit == 1:
-                    temperature = temperature * 1.8 + 32
-                    thismodule.temperature = temperature
-                    thismodule.temperature_pretty = '{:.1f}\u2109'.format(
-                        temperature)
+
+            if thismodule.has_co2:
+                co2 = -1
+                if 'CO2' in thismodule.dashboard_data.keys():
+                    co2 = thismodule.dashboard_data['CO2']
+                thismodule.co2 = co2
+                thismodule.co2_pretty = '%dppm' % co2
 
             if thismodule.has_pressure:
                 pressureunit = thismodule.administrative['pressureunit']
@@ -260,7 +255,19 @@ class Weatherstation(object):
                     thismodule.pressure = '{:.1f}'.format(pressure)
                     thismodule.pressure_pretty = '{:.1f}mmHg'.format(pressure)
 
-                print(thismodule.pressure_pretty)
+            if thismodule.has_temperature:
+                unit = thismodule.administrative['unit']
+                temperature = thismodule.dashboard_data['Temperature']
+                if unit == 0:
+                    thismodule.temperature = temperature
+                    thismodule.temperature_pretty = '{:.1f}\u2103'.format(
+                        temperature)
+                if unit == 1:
+                    temperature = temperature * 1.8 + 32
+                    thismodule.temperature = temperature
+                    thismodule.temperature_pretty = '{:.1f}\u2109'.format(
+                        temperature)
+
 
 ws = Weatherstation(
     configyaml=r'c:\python\pynetatmo\settings.yaml',
