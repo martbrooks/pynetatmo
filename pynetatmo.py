@@ -240,6 +240,13 @@ class Weatherstation(object):
                 thismodule.co2 = co2
                 thismodule.co2_pretty = '%dppm' % co2
 
+            if thismodule.has_humidity:
+                humudity = -1
+                if 'Humidity' in thismodule.dashboard_data.keys():
+                    humidity = thismodule.dashboard_data['Humidity']
+                thismodule.humidity = humidity
+                thismodule.humidity_pretty = '%d%%' % humidity
+
             if thismodule.has_pressure:
                 pressureunit = thismodule.administrative['pressureunit']
                 pressure = thismodule.dashboard_data['Pressure']
