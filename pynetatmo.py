@@ -236,15 +236,31 @@ class Weatherstation(object):
                 unit = thismodule.administrative['unit']
                 temperature = thismodule.dashboard_data['Temperature']
                 if unit == 0:
-                    thismodule.temperature_raw = temperature
-                    thismodule.temperature_pretty = '%s\u2103' % temperature
+                    thismodule.temperature = temperature
+                    thismodule.temperature_pretty = '{:.1f}\u2103'.format(
+                        temperature)
                 if unit == 1:
-                    temperature = "%.1f" % (temperature * 1.8 + 32)
-                    thismodule.temperature_raw = temperature
-                    thismodule.temperature_pretty = '%s\x2109' % temperature
+                    temperature = temperature * 1.8 + 32
+                    thismodule.temperature = temperature
+                    thismodule.temperature_pretty = '{:.1f}\u2109'.format(
+                        temperature)
 
-                print(thismodule.temperature_raw)
-                print(thismodule.temperature_pretty)
+            if thismodule.has_pressure:
+                pressureunit = thismodule.administrative['pressureunit']
+                pressure = thismodule.dashboard_data['Pressure']
+                if pressureunit == 0:
+                    thismodule.pressure = '{:.1f}'.format(pressure)
+                    thismodule.pressure_pretty = '{:.1f}mbar'.format(pressure)
+                if pressureunit == 1:
+                    pressure = pressure * 0.0295301
+                    thismodule.pressure = '{:.1f}'.format(pressure)
+                    thismodule.pressure_pretty = '{:.1f}inHg'.format(pressure)
+                if pressureunit == 2:
+                    pressure = pressure * 0.75006375541921
+                    thismodule.pressure = '{:.1f}'.format(pressure)
+                    thismodule.pressure_pretty = '{:.1f}mmHg'.format(pressure)
+
+                print(thismodule.pressure_pretty)
 
 ws = Weatherstation(
     configyaml=r'c:\python\pynetatmo\settings.yaml',
