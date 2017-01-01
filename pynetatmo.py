@@ -99,7 +99,7 @@ class Weatherstation(object):
         ''' Make sure the token store is populated with a fresh access token.'''
         haschanged = False
         store = {}
-        tokenstore = self.config['tokenstore']
+        tokenstore = self.config.get('tokenstore', 'tokenstore.yaml')
 
         if os.path.isfile(tokenstore):
             logger.debug('Reading stored tokens from \'%s\'.', tokenstore)
