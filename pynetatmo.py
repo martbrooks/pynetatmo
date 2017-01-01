@@ -5,6 +5,7 @@ import logging
 import os
 import pprint
 import requests
+import sys
 import yaml
 
 logger = logging.getLogger(__name__)
