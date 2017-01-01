@@ -268,15 +268,15 @@ class Weatherstation(object):
 
 
 ws = Weatherstation(
-    configyaml=r'c:\python\pynetatmo\settings.yaml',
+    configyaml=r'settings.yaml',
     loglevel='debug')
 ws.list_modules('')
 
 # for station in ws.hierarchy:
-#    print('- %s' % (ws.modules[station].station_name))
-#    print('-- %s' % (ws.modules[station].module_name))
-#    for submodule in ws.hierarchy[station]:
-#        print('--- %s' % (ws.modules[submodule].module_name))
+#     print('- %s' % (ws.modules[station].station_name))
+#     print('-- %s' % (ws.modules[station].module_name))
+#     for submodule in ws.hierarchy[station]:
+#         print('--- %s' % (ws.modules[submodule].module_name))
 
 
 #_get_or_refresh_token(ws)
