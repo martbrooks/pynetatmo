@@ -203,36 +203,21 @@ class Weatherstation(object):
                 submodule_id = submodule['_id'],
                 child_modules.append(submodule_id)
                 self.modules[submodule_id] = WeatherstationModule(
-                    is_child=True,
-                    module_id=submodule_id,
+                    is_child=True, module_id=submodule_id,
                     module_type=submodule['type'],
                     module_name=submodule['module_name'],
                     parent_id=station_id,
-                    administrative=stationdata['body']['user']['administrative'],
+                    administrative=stationdata['body']['user']
+                    ['administrative'],
                     dashboard_data=submodule['dashboard_data'],
-                    has_co2=self._has_data_type(
-                        data_type,
-                        'CO2'),
-                    has_humidity=self._has_data_type(
-                        data_type,
-                        'Humidity'),
-                    has_noise=self._has_data_type(
-                        data_type,
-                        'Noise'),
-                    has_pressure=self._has_data_type(
-                        data_type,
-                        'Pressure'),
-                    has_rain=self._has_data_type(
-                        data_type,
-                        'Rain'),
+                    has_co2=self._has_data_type(data_type, 'CO2'),
+                    has_humidity=self._has_data_type(data_type, 'Humidity'),
+                    has_noise=self._has_data_type(data_type, 'Noise'),
+                    has_pressure=self._has_data_type(data_type, 'Pressure'),
+                    has_rain=self._has_data_type(data_type, 'Rain'),
                     has_temperature=self._has_data_type(
-                        data_type,
-                        'Temperature'),
-                    has_wind=self._has_data_type(
-                        data_type,
-                        'Wind'),
-
-                )
+                        data_type, 'Temperature'),
+                    has_wind=self._has_data_type(data_type, 'Wind'),)
 
             self.hierarchy[station_id] = child_modules
 
