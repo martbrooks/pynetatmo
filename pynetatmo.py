@@ -75,6 +75,11 @@ class Weatherstation(object):
         response = requests.post(
             'https://api.netatmo.net/oauth2/token',
             data=payload)
+        if response.status_code != requests.codes.ok:
+            logger.critical(
+                'Could not fetch new token: %s',
+                response.status_code)
+            sys.exit()
         return response.json()
 
     def _refresh_token(self):
